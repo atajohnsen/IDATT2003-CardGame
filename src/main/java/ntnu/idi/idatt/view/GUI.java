@@ -1,5 +1,7 @@
 package ntnu.idi.idatt.view;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,79 +15,68 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import ntnu.idi.idatt.model.Deck;
-import ntnu.idi.idatt.model.Hand;
+import ntnu.idi.idatt.controller.GameController;
 import ntnu.idi.idatt.model.PlayingCard;
-
-import java.util.List;
 
 public class GUI extends Application {
 
-  private Deck deck;
-  private Hand currentHand;
+  private final GameController gameController = new GameController();
   private final HBox cardDisplay = new HBox(10);
   private final Label resultLabel = new Label("");
   private final Label queenOfSpadesResultLabel = new Label("");
+  private final Label sumOfFacesResultLabel = new Label("");
+  private final Label cardOfHeartsResultLabel = new Label("");
 
   @Override
   public void start(Stage primaryStage) {
-    deck = new Deck();
-    deck.shuffle();
-
-    Button dealHandButton = new Button("Trekk en hånd");
-    Button checkHandButton = new Button("Sjekk hånd");
+    Button dealHandButton = new Button("Draw cards");
+    Button checkHandButton = new Button("Check hand");
 
     dealHandButton.setOnAction(e -> drawHand());
     checkHandButton.setOnAction(e -> checkHand());
 
     VBox root = new VBox(15, dealHandButton, checkHandButton, cardDisplay, resultLabel,
-        queenOfSpadesResultLabel);
+        queenOfSpadesResultLabel, sumOfFacesResultLabel, cardOfHeartsResultLabel);
     root.setAlignment(Pos.CENTER);
     root.setStyle("-fx-padding: 20;");
 
     Scene scene = new Scene(root, 600, 400);
-    primaryStage.setTitle("Kortspill - JavaFX");
+    primaryStage.setTitle("CardGame Xtreme");
     primaryStage.setScene(scene);
     primaryStage.show();
   }
 
   private void drawHand() {
-    currentHand = deck.dealHand(5);
-    cardDisplay.getChildren().clear();
-    resultLabel.setText("");
+    try {
+      gameController.drawHand(5);
+      cardDisplay.getChildren().clear();
+      resultLabel.setText("Combo: ");
+      queenOfSpadesResultLabel.setText("Has Queen of Spades: ");
+      sumOfFacesResultLabel.setText("Sum of faces: ");
+      cardOfHeartsResultLabel.setText("Cards of Hearts: ");
 
-    List<PlayingCard> cards = currentHand.getCards();
-    for (PlayingCard card : cards) {
-      cardDisplay.getChildren().add(createCardView(card));
+      for (PlayingCard card : gameController.getCurrentHandCards()) {
+        cardDisplay.getChildren().add(createCardView(card));
+      }
+    } catch (IllegalStateException e) {
+      gameController.resetGame();
+      cardDisplay.getChildren().clear();
+      resultLabel.setText("Not enough cards left in deck to draw a new hand. Game is reset.");
+      queenOfSpadesResultLabel.setText("Draw cards to start again.");
     }
   }
 
+
   private void checkHand() {
-    if (currentHand == null) {
-      resultLabel.setText("Trekk en hånd først!");
-      return;
-    }
-
-    boolean isFlush = currentHand.isFlush();
-    boolean isStraight = currentHand.isStraight();
-    boolean containsQueenOfSpades = currentHand.containsQueenOfSpades();
-    if (isFlush && isStraight) {
-      resultLabel.setText("Straight Flush!");
-    } else if (isFlush) {
-      resultLabel.setText("Flush!");
-    } else if (isStraight) {
-      resultLabel.setText("Straight!");
-    } else {
-      resultLabel.setText("Ingen spesielle kombinasjoner.");
-    }
-
-    if (currentHand.containsQueenOfSpades()) {
-      queenOfSpadesResultLabel.setText("Du har spar dronning i handa!");
-    }
+    resultLabel.setText("Combo: " + gameController.checkHand());
+    queenOfSpadesResultLabel.setText("Has Queen Of Spades: " + gameController.checkQueenOfSpades());
+    sumOfFacesResultLabel.setText("Sum of faces: " + gameController.checkSumOfFaces());
+    cardOfHeartsResultLabel.setText(
+        "Cards of Hearts: " + cardListToString(gameController.checkCardOfHearts()));
   }
 
   private StackPane createCardView(PlayingCard card) {
-    String imagePath = getSuitImage(card.getSuit());
+    String imagePath = gameController.getSuitImage(card.getSuit());
 
     ImageView suitImage = new ImageView(new Image(imagePath));
     suitImage.setFitWidth(40);
@@ -106,19 +97,12 @@ public class GUI extends Application {
     return cardBox;
   }
 
-  private String getSuitImage(char suit) {
-    switch (suit) {
-      case 'S':
-        return "Spade.png";
-      case 'H':
-        return "Hearts.png";
-      case 'D':
-        return "Diamonds.png";
-      case 'C':
-        return "Clover.png";
-      default:
-        return "unknown.png";
+  private String cardListToString(List<PlayingCard> cards) {
+    if (cards.isEmpty()) {
+      return "None :(";
     }
+    return cards.stream().map(card -> "" + card.getSuit() + card.getValue())
+        .collect(Collectors.joining(", "));
   }
 
   public static void main(String[] args) {

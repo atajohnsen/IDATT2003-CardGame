@@ -1,8 +1,6 @@
 package ntnu.idi.idatt.model;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Hand {
@@ -39,14 +37,12 @@ public class Hand {
         .anyMatch(card -> card.getSuit() == 'S' && card.getValue() == 12);
   }
 
-  public Map<Character, Long> getSuitCounts() {
-    return cards.stream()
-        .collect(Collectors.groupingBy(PlayingCard::getSuit, Collectors.counting()));
+  public int getRankSum() {
+    return  cards.stream().mapToInt(PlayingCard::getValue).sum();
   }
 
-  public Map<Integer, Long> getRankCounts() {
-    return cards.stream()
-        .collect(Collectors.groupingBy(PlayingCard::getValue, Collectors.counting()));
+  public List<PlayingCard> getCardsBySuit(char suit) {
+    return cards.stream().filter(card -> card.getSuit() == suit).toList();
   }
 
   @Override

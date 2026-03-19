@@ -1,7 +1,6 @@
 package ntnu.idi.idatt.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -10,7 +9,7 @@ import java.util.stream.IntStream;
 public class Deck {
 
   private final char[] suits = {'S', 'H', 'D', 'C'};
-  private List<PlayingCard> cards;
+  private final List<PlayingCard> cards;
   private final Random random = new Random();
 
   public Deck() {
@@ -31,15 +30,12 @@ public class Deck {
     return new ArrayList<>(cards);
   }
 
-  public void shuffle() {
-    Collections.shuffle(cards);
-  }
-
-
   public Hand dealHand(int n) {
-    if (n < 1 || n > cards.size()) {
-      throw new IllegalArgumentException(
-          "Number of cards to draw must be between 1 and " + cards.size());
+    if (n < 1) {
+      throw new IllegalArgumentException("Number of cards to draw must be at least 1.");
+    }
+    if (cards.size() < n) {
+      throw new IllegalStateException("Deck has insufficient amount of cards to draw from.");
     }
 
     List<PlayingCard> handCards = random.ints(0, cards.size())

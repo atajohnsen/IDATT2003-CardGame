@@ -1,6 +1,7 @@
 package ntnu.idi.idatt.view;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -76,14 +77,15 @@ public class GUI extends Application {
   }
 
   private StackPane createCardView(PlayingCard card) {
-    String imagePath = gameController.getSuitImage(card.getSuit());
+    String imagePath = gameController.getSuitImagePath(card.getSuit());
 
-    ImageView suitImage = new ImageView(new Image(imagePath));
+    ImageView suitImage = new ImageView(new Image(
+        Objects.requireNonNull(getClass().getResource(imagePath)).toExternalForm()));
     suitImage.setFitWidth(40);
     suitImage.setFitHeight(40);
     suitImage.setPreserveRatio(true);
 
-    Label valueLabel = new Label(String.valueOf(card.getValue()));
+    Label valueLabel = new Label(String.valueOf(card.getFace()));
     valueLabel.setAlignment(Pos.TOP_LEFT);
 
     VBox cardValues = new VBox(valueLabel, suitImage);
@@ -101,7 +103,7 @@ public class GUI extends Application {
     if (cards.isEmpty()) {
       return "None :(";
     }
-    return cards.stream().map(card -> "" + card.getSuit() + card.getValue())
+    return cards.stream().map(card -> "" + card.getSuit() + card.getFace())
         .collect(Collectors.joining(", "));
   }
 

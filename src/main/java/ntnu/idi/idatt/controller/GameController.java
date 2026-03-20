@@ -49,7 +49,7 @@ public class GameController {
       return "";
     }
 
-    if (currentHand.containsQueenOfSpades()) {
+    if (currentHand.containsCard('S', 12)) {
       return "AYUP!";
     }
 
@@ -68,12 +68,12 @@ public class GameController {
     return currentHand.getCardsBySuit('H');
   }
 
-  public String getSuitImage(char suit) {
+  public String getSuitImagePath(char suit) {
     return switch (suit) {
-      case 'S' -> "Spade.png";
-      case 'H' -> "Hearts.png";
-      case 'D' -> "Diamonds.png";
-      case 'C' -> "Clover.png";
+      case 'S' -> "/Spade.png";
+      case 'H' -> "/Hearts.png";
+      case 'D' -> "/Diamonds.png";
+      case 'C' -> "/Clover.png";
       default -> "unknown.png";
     };
   }
@@ -81,5 +81,10 @@ public class GameController {
   public void resetGame() {
     deck = new Deck();
     currentHand = null;
+  }
+
+  //For testing purposes
+  void setCurrentHand(Hand hand) {
+    this.currentHand = hand;
   }
 }

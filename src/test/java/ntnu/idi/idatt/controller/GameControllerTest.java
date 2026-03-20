@@ -2,7 +2,6 @@ package ntnu.idi.idatt.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import ntnu.idi.idatt.model.Hand;
 import ntnu.idi.idatt.model.PlayingCard;
@@ -89,7 +88,7 @@ class GameControllerTest {
   }
 
   @Test
-  void checkHandShouldReturnStraightWhenHandIsOnlyFlush() {
+  void checkHandShouldReturnStraightWhenHandIsOnlyStraight() {
     Hand hand = new Hand(List.of(
         new PlayingCard('S', 3),
         new PlayingCard('H', 4),
